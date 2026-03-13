@@ -8,7 +8,7 @@ A powerful backend framework that gives any data entity **time-travel superpower
 
 Most databases only store the **current state** of data. When something changes, the old version is gone forever. This causes real pain:
 
-- *"What was this user's subscription plan when they made this purchase?"* — you can't know
+- _"What was this user's subscription plan when they made this purchase?"_ — you can't know
 - Audit trails and compliance become a nightmare
 - Debugging production issues that depended on state that no longer exists
 
@@ -47,6 +47,7 @@ Chrono gives every entity a **time dimension**. Store any entity with a validity
 ## 📦 Getting Started
 
 ### Prerequisites
+
 - Python 3.11+
 - PostgreSQL 15+
 
@@ -90,15 +91,15 @@ Visit `http://127.0.0.1:8000/docs` for the interactive API docs.
 
 ## 🔌 API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/temporal/` | Create a temporal record |
-| `GET` | `/api/v1/temporal/{id}` | Get a record by ID |
-| `GET` | `/api/v1/temporal/entity/{type}/{id}/current` | Get current state |
-| `GET` | `/api/v1/temporal/entity/{type}/{id}/history` | Get full history |
-| `GET` | `/api/v1/temporal/entity/{type}/{id}/as-of` | Time-travel query |
-| `GET` | `/api/v1/temporal/entity/{type}/{id}/diff` | Diff two points in time |
-| `PATCH` | `/api/v1/temporal/{id}/close` | Close a record |
+| Method  | Endpoint                                      | Description              |
+| ------- | --------------------------------------------- | ------------------------ |
+| `POST`  | `/api/v1/temporal/`                           | Create a temporal record |
+| `GET`   | `/api/v1/temporal/{id}`                       | Get a record by ID       |
+| `GET`   | `/api/v1/temporal/entity/{type}/{id}/current` | Get current state        |
+| `GET`   | `/api/v1/temporal/entity/{type}/{id}/history` | Get full history         |
+| `GET`   | `/api/v1/temporal/entity/{type}/{id}/as-of`   | Time-travel query        |
+| `GET`   | `/api/v1/temporal/entity/{type}/{id}/diff`    | Diff two points in time  |
+| `PATCH` | `/api/v1/temporal/{id}/close`                 | Close a record           |
 
 ---
 
