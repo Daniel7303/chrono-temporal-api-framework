@@ -32,21 +32,21 @@ Chrono gives every entity a **time dimension**. Store any entity with a validity
 - 🕐 **Time-travel queries** — Get the exact state of any entity at any point in history
 - 📜 **Full history** — See the complete timeline of changes for any entity
 - 🔍 **Diff engine** — Compare any two points in time and see exactly what changed
-- 🔐 **API key authentication** — Secure your API with generated keys
 - 📦 **Generic** — Works with any entity type (users, orders, products, contracts — anything)
 - ⚡ **Async** — Built with FastAPI and async SQLAlchemy for high performance
-- 🐳 **Docker ready** — Run the full stack with one command
+- 🔐 **API key authentication** — Secure your API with generated keys
+- 🐳 **Docker ready** — Run everything with one command
 - 📖 **Auto docs** — Interactive Swagger UI out of the box
 
 ---
 
 ## 📦 Install the Python Package
 
-Just want the core library? Install it directly:
-
 ```bash
 pip install chrono-temporal
 ```
+
+Use the core library directly in your own Python project:
 
 ```python
 from chrono_temporal import TemporalService, TemporalRecordCreate, get_engine, get_session, create_tables
@@ -55,62 +55,77 @@ from datetime import datetime, timezone
 engine = get_engine("postgresql+asyncpg://user:pass@localhost/mydb")
 session_factory = get_session(engine)
 
-async with session_factory() as session:
-    svc = TemporalService(session)
+async def main():
+    await create_tables(engine)
 
-    # Time-travel query
-    records = await svc.get_at_point_in_time(
-        "user", "user_001", datetime(2024, 3, 1, tzinfo=timezone.utc)
-    )
+    async with session_factory() as session:
+        svc = TemporalService(session)
 
-    # Diff between two dates
-    diff = await svc.get_diff(
-        "user", "user_001",
-        datetime(2024, 1, 1, tzinfo=timezone.utc),
-        datetime(2025, 7, 1, tzinfo=timezone.utc),
-    )
-    print(diff["changed"])  # {"plan": {"from": "free", "to": "pro"}}
+        # Store a record
+        await svc.create(TemporalRecordCreate(
+            entity_type="user",
+            entity_id="user_001",
+            valid_from=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            data={"name": "Daniel", "plan": "free"}
+        ))
+
+        # Time-travel — what was the state on March 1st 2024?
+        records = await svc.get_at_point_in_time(
+            "user", "user_001", datetime(2024, 3, 1, tzinfo=timezone.utc)
+        )
+
+        # Diff — what changed between two dates?
+        diff = await svc.get_diff(
+            "user", "user_001",
+            datetime(2024, 1, 1, tzinfo=timezone.utc),
+            datetime(2025, 7, 1, tzinfo=timezone.utc),
+        )
+        print(diff["changed"])  # {"plan": {"from": "free", "to": "pro"}}
 ```
-
-👉 [View on PyPI](https://pypi.org/project/chrono-temporal/)
 
 ---
 
 ## 🛠 Tech Stack
 
-| Tool               | Purpose                           |
-| ------------------ | --------------------------------- |
-| **FastAPI**        | Modern async Python web framework |
-| **PostgreSQL**     | Battle-tested relational database |
-| **SQLAlchemy 2.0** | Async ORM                         |
-| **Alembic**        | Database migrations               |
-| **Pydantic**       | Data validation                   |
-| **asyncpg**        | Async PostgreSQL driver           |
-| **Docker**         | Containerized deployment          |
+- **FastAPI** — Modern async Python web framework
+- **PostgreSQL** — Battle-tested relational database
+- **SQLAlchemy 2.0** — Async ORM
+- **Alembic** — Database migrations
+- **Pydantic** — Data validation
+- **asyncpg** — Async PostgreSQL driver
 
 ---
 
-## 🐳 Quick Start with Docker
+## 🐳 Run with Docker (Recommended)
 
-The fastest way to run the full API — no setup required:
+No PostgreSQL setup needed. Just run:
 
 ```bash
-# Clone the repo
 git clone https://github.com/Daniel7303/chrono-temporal-api-framework.git
 cd chrono-temporal-api-framework
+```
 
-# Create your environment file
-cp .env.docker.example .env.docker
+Create a `.env.docker` file:
 
-# Start everything
+```env
+DATABASE_URL=postgresql+asyncpg://temporal_user:temporal_pass@db:5432/temporal_api
+DATABASE_URL_SYNC=postgresql+psycopg2://temporal_user:temporal_pass@db:5432/temporal_api
+APP_NAME=Chrono Temporal API Framework
+APP_VERSION=0.1.0
+DEBUG=True
+```
+
+Then start everything:
+
+```bash
 docker-compose up --build
 ```
 
-Visit `http://localhost:8000/docs` for the interactive API docs. ✅
+Visit `http://127.0.0.1:8000/docs` for the interactive API docs. ✅
 
 ---
 
-## 🖥️ Manual Setup
+## ⚙️ Manual Setup
 
 ### Prerequisites
 
@@ -120,22 +135,17 @@ Visit `http://localhost:8000/docs` for the interactive API docs. ✅
 ### Installation
 
 ```bash
-# Clone the repo
 git clone https://github.com/Daniel7303/chrono-temporal-api-framework.git
 cd chrono-temporal-api-framework
-
-# Create virtual environment
 python -m venv venv
 venv\Scripts\activate  # Windows
 source venv/bin/activate  # Mac/Linux
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
 ### Configure environment
 
-Create a `.env` file in the root directory:
+Create a `.env` file:
 
 ```env
 DATABASE_URL=postgresql+asyncpg://postgres:yourpassword@localhost:5432/temporal_api
@@ -157,7 +167,7 @@ Visit `http://127.0.0.1:8000/docs` for the interactive API docs.
 
 ## 🔌 API Endpoints
 
-### Framework
+### Core Framework
 
 | Method  | Endpoint                                      | Description              |
 | ------- | --------------------------------------------- | ------------------------ |
@@ -179,14 +189,14 @@ Visit `http://127.0.0.1:8000/docs` for the interactive API docs.
 
 ### Demo — Subscription Management
 
-| Method  | Endpoint                                     | Description                    |
-| ------- | -------------------------------------------- | ------------------------------ |
-| `POST`  | `/demo/subscriptions/customers`              | Create a customer              |
-| `GET`   | `/demo/subscriptions/customers/{id}`         | Get current state              |
-| `PATCH` | `/demo/subscriptions/customers/{id}/plan`    | Upgrade/downgrade plan         |
-| `GET`   | `/demo/subscriptions/customers/{id}/history` | Full plan history              |
-| `GET`   | `/demo/subscriptions/customers/{id}/as-of`   | Plan at a point in time        |
-| `GET`   | `/demo/subscriptions/customers/{id}/diff`    | What changed between two dates |
+| Method  | Endpoint                                     | Description                |
+| ------- | -------------------------------------------- | -------------------------- |
+| `POST`  | `/demo/subscriptions/customers`              | Create a customer          |
+| `GET`   | `/demo/subscriptions/customers/{id}`         | Get current state          |
+| `PATCH` | `/demo/subscriptions/customers/{id}/plan`    | Upgrade/downgrade plan     |
+| `GET`   | `/demo/subscriptions/customers/{id}/history` | Full plan history          |
+| `GET`   | `/demo/subscriptions/customers/{id}/as-of`   | Plan at a point in time    |
+| `GET`   | `/demo/subscriptions/customers/{id}/diff`    | What changed between dates |
 
 ---
 
@@ -197,40 +207,42 @@ Visit `http://127.0.0.1:8000/docs` for the interactive API docs.
 ```bash
 POST /auth/keys/
 { "name": "my-app" }
-
-# Returns (shown only once — store it!)
-{ "raw_key": "chron_sk_a1b2c3..." }
+# Returns: { "raw_key": "chron_sk_..." } — save this, shown only once!
 ```
 
-### 2. Create a temporal record
+### 2. Create a customer
 
 ```bash
-POST /api/v1/temporal/
-X-API-Key: chron_sk_a1b2c3...
-
+POST /demo/subscriptions/customers
+X-API-Key: chron_sk_...
 {
-  "entity_type": "user",
-  "entity_id": "user_001",
-  "valid_from": "2024-01-01T00:00:00Z",
-  "data": { "name": "Daniel", "plan": "free" }
+  "name": "Daniel",
+  "email": "daniel@example.com",
+  "plan": "free"
 }
 ```
 
-### 3. Time-travel query
+### 3. Upgrade their plan
 
 ```bash
-GET /api/v1/temporal/entity/user/user_001/as-of?as_of=2024-03-01T00:00:00Z
-X-API-Key: chron_sk_a1b2c3...
-
-# Returns the state of user_001 on March 1st 2024
+PATCH /demo/subscriptions/customers/cust_abc123/plan
+X-API-Key: chron_sk_...
+{ "new_plan": "pro", "effective_from": "2025-06-01T00:00:00Z" }
 ```
 
-### 4. Diff between two dates
+### 4. Time-travel — what plan were they on in March 2024?
 
 ```bash
-GET /api/v1/temporal/entity/user/user_001/diff?from_dt=2024-01-01T00:00:00Z&to_dt=2025-07-01T00:00:00Z
-X-API-Key: chron_sk_a1b2c3...
+GET /demo/subscriptions/customers/cust_abc123/as-of?as_of=2024-03-01T00:00:00Z
+X-API-Key: chron_sk_...
+# Returns: { "plan": "free", ... }
+```
 
+### 5. Diff — what changed between 2024 and 2025?
+
+```bash
+GET /demo/subscriptions/customers/cust_abc123/diff?from_dt=2024-01-01T00:00:00Z&to_dt=2025-07-01T00:00:00Z
+X-API-Key: chron_sk_...
 # Returns:
 {
   "changed": { "plan": { "from": "free", "to": "pro" } },
@@ -250,9 +262,9 @@ X-API-Key: chron_sk_a1b2c3...
 - [x] Subscription management demo
 - [x] Docker support
 - [x] PyPI package (`pip install chrono-temporal`)
-- [ ] Deploy to cloud (DigitalOcean / Railway)
-- [ ] Stripe payments for hosted API
-- [ ] Timeline visualization dashboard
+- [ ] Timeline summary endpoint
+- [ ] Stripe payments integration
+- [ ] Hosted cloud version
 
 ---
 
