@@ -19,7 +19,7 @@ pip install chrono-temporal
 
 Most databases only store the **current state** of data. When something changes, the old version is gone forever:
 
-- *"What was this user's subscription plan when they filed a dispute?"* — you can't know
+- _"What was this user's subscription plan when they filed a dispute?"_ — you can't know
 - Audit trails and compliance become a nightmare
 - Debugging issues that depended on state that no longer exists
 
@@ -150,6 +150,7 @@ cd chrono-temporal-api-framework
 ```
 
 Create a `.env.docker` file:
+
 ```env
 DATABASE_URL=postgresql+asyncpg://temporal_user:temporal_pass@db:5432/temporal_api
 DATABASE_URL_SYNC=postgresql+psycopg2://temporal_user:temporal_pass@db:5432/temporal_api
@@ -159,6 +160,7 @@ DEBUG=True
 ```
 
 Start everything:
+
 ```bash
 docker-compose up --build
 ```
@@ -171,31 +173,31 @@ Visit `http://127.0.0.1:8000/docs` — interactive Swagger UI with all endpoints
 
 ### Core
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/temporal/` | Create a temporal record |
-| `GET` | `/api/v1/temporal/entity/{type}/{id}/current` | Get current state |
-| `GET` | `/api/v1/temporal/entity/{type}/{id}/history` | Get full history |
-| `GET` | `/api/v1/temporal/entity/{type}/{id}/as-of` | Time-travel query |
-| `GET` | `/api/v1/temporal/entity/{type}/{id}/diff` | Diff two points in time |
-| `PATCH` | `/api/v1/temporal/{id}/close` | Close a record |
+| Method  | Endpoint                                      | Description              |
+| ------- | --------------------------------------------- | ------------------------ |
+| `POST`  | `/api/v1/temporal/`                           | Create a temporal record |
+| `GET`   | `/api/v1/temporal/entity/{type}/{id}/current` | Get current state        |
+| `GET`   | `/api/v1/temporal/entity/{type}/{id}/history` | Get full history         |
+| `GET`   | `/api/v1/temporal/entity/{type}/{id}/as-of`   | Time-travel query        |
+| `GET`   | `/api/v1/temporal/entity/{type}/{id}/diff`    | Diff two points in time  |
+| `PATCH` | `/api/v1/temporal/{id}/close`                 | Close a record           |
 
 ### Authentication
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/auth/keys/` | Generate a new API key |
-| `GET` | `/auth/keys/` | List all keys |
-| `DELETE` | `/auth/keys/{id}` | Revoke a key |
+| Method   | Endpoint          | Description            |
+| -------- | ----------------- | ---------------------- |
+| `POST`   | `/auth/keys/`     | Generate a new API key |
+| `GET`    | `/auth/keys/`     | List all keys          |
+| `DELETE` | `/auth/keys/{id}` | Revoke a key           |
 
 ### Demo — Subscription Management
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/demo/subscriptions/customers` | Create a customer |
-| `PATCH` | `/demo/subscriptions/customers/{id}/plan` | Upgrade/downgrade plan |
-| `GET` | `/demo/subscriptions/customers/{id}/as-of` | Plan at a point in time |
-| `GET` | `/demo/subscriptions/customers/{id}/diff` | What changed between dates |
+| Method  | Endpoint                                   | Description                |
+| ------- | ------------------------------------------ | -------------------------- |
+| `POST`  | `/demo/subscriptions/customers`            | Create a customer          |
+| `PATCH` | `/demo/subscriptions/customers/{id}/plan`  | Upgrade/downgrade plan     |
+| `GET`   | `/demo/subscriptions/customers/{id}/as-of` | Plan at a point in time    |
+| `GET`   | `/demo/subscriptions/customers/{id}/diff`  | What changed between dates |
 
 ---
 
@@ -212,6 +214,16 @@ Visit `http://127.0.0.1:8000/docs` — interactive Swagger UI with all endpoints
 - [ ] Django ORM support
 - [ ] Timeline summary endpoint
 - [ ] Hosted cloud version
+
+---
+
+postgresql
+python
+fastapi
+sqlalchemy
+time-travel
+audit-log
+temporal
 
 ---
 
